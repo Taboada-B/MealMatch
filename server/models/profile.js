@@ -20,7 +20,17 @@ const profileSchema = new Schema({
     minlength: 6,
   },
   favRecipe: [
-    
+    {
+      type: Schema.Types.ObjectId,
+      ref: "RecipeFav",
+    },
+  ],
+  recentRecipe: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "RecipeRecent"
+    }
+
   ]
 
 });

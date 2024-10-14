@@ -10,9 +10,9 @@ const FoodSearch = async (q) => {
       params: {
         app_id: process.env.REACT_APP_EDAMAM_APP_ID,
         app_key: process.env.REACT_APP_EDAMAM_APP_KEY,
-        q: q || undefined, // Add ingredient search if provided
-        imageSize: "REGULAR",
-        random: true,
+        q: q || undefined, // Keyword search
+        imageSize: "REGULAR", // url to regular sized image
+        random: true, 
         beta: false,
       },
     });

@@ -1,33 +1,49 @@
-// profile will be user's info
-// 
 const typeDefs = `
-type Profile {
+  type Profile {
     _id: ID
-    username: String
+    profilename: String
     email: String
     password: String
+    favRecipes: [RecipeFav]! 
+    recentRecipes: [RecipeRecent]! 
   }
+
+ type RecipeFav {
+  _id: ID
+  recipeTitle: String
+  recipeImageUrl: String
+  recipeUrl: String
+}
+
+type RecipeRecent {
+  _id: ID
+  recipeTitle: String
+  recipeImageUrl: String
+  recipeUrl: String
+}
 
   type Auth {
     token: ID!
     profile: Profile
   }
 
-  type Query {
-    profiles: [Profile]!
-    profile(profileId: ID!): Profile
+type Query {
+    profiles: [Profile]
+    profile(profilename: String!): Profile
+    recipes(profilename: String): [RecipeFav]  
+    recipe(recipeId: ID!): RecipeFav  
+    me: Profile 
   }
 
-  type Mutation {
-    addProfile(username: String!, email: String!, password: String!): Auth
+ type Mutation {
+    addProfile (profilename: String!, email: String!, password: String!): Auth
     login(email: String!, password: String!): Auth
-    removeProfile(profileId: ID!): Profile
+    addRecipe (recipeText: String!): RecipeFav  
+    removeRecipe (recipeId: ID!): RecipeFav  
+    
   }
-
-`
-
-// might need to have a way to add favorites here, to be continued
-
+`;
 
 module.exports = typeDefs;
+
 

@@ -1,7 +1,7 @@
 const { GraphQLError } = require('graphql');
 const jwt = require('jsonwebtoken');
 
-const secret = 'flockchen';
+const secret = 'FlockchenisOurHero';
 const expiration = '2h';
 
 module.exports = {
@@ -22,8 +22,8 @@ module.exports = {
     }
 
     try {
-      const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      req.user = data;
+      const { authenticatedPerson } = jwt.verify(token, secret, { maxAge: expiration });
+      req.profile = authenticatedPerson; 
     } catch {
       console.log('Invalid token');
     }
@@ -32,7 +32,6 @@ module.exports = {
   },
   signToken: function ({ email, username, _id }) {
     const payload = { email, username, _id };
-    console.log("signToken: ", signToken)
-    return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
+    return jwt.sign({ authenticatedPerson: payload }, secret, { expiresIn: expiration });
   },
 };

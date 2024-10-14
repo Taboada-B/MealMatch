@@ -1,11 +1,11 @@
-const { gql } = require('apollo-server-express');
+const { gql } = require('graphql-tag');
 
 const typeDefs = gql`
   type Recipe {
     _id: ID!
-    recipeText: String!
-    recipeAuthor: String!
-    createdAt: String
+    recipeTitle: String!
+    recipeImageUrl: String!
+    recipeUrl: String!
   }
 
   type Profile {
@@ -35,8 +35,8 @@ const typeDefs = gql`
   type Mutation {
     addProfile(username: String!, email: String!, password: String!): Auth
     login(email: String!, password: String!): Auth
-    addRecipeFavorite(recipeText: String!): Recipe
-    addRecipeRecent(recipeText: String!): Recipe
+    addRecipeFavorite(recipeTitle: String!, recipeImageUrl: String!, recipeUrl: String!): Recipe
+    addRecipeRecent(recipeTitle: String!, recipeImageUrl: String!, recipeUrl: String!): Recipe
     removeRecipeFavorite(recipeId: ID!): Recipe
     removeRecipeRecent(recipeId: ID!): Recipe
   }

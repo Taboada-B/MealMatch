@@ -48,27 +48,30 @@ const resolvers = {
 
       return { token, profile };
     },
-    addRecipeFavorite: async (parent, { recipeText }, context) => {
+    addRecipeFavorite: async (parent, { recipeTitle, recipeImageUrl, recipeUrl }, context) => {
       if (context.profile) {
         const recipe = await RecipeFav.create({
-          recipeText,
-          recipeAuthor: context.profile.username,
+          recipeTitle,
+          recipeImageUrl,
+          recipeUrl,
         });
-
+    
         await Profile.findOneAndUpdate(
           { _id: context.profile._id },
           { $addToSet: { favRecipe: recipe._id } }
         );
-
+    
         return recipe;
       }
       throw new AuthenticationError('Not authenticated');
     },
-    addRecipeRecent: async (parent, { recipeText }, context) => {
+    
+    addRecipeRecent: async (parent, { recipeTitle, recipeImageUrl, recipeUrl }, context) => {
       if (context.profile) {
         const recipe = await RecipeRecent.create({
-          recipeText,
-          recipeAuthor: context.profile.username,
+          recipeTitle, 
+          recipeImageUrl, 
+          recipeUrl,
         });
 
         await Profile.findOneAndUpdate(

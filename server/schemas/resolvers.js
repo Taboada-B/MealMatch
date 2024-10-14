@@ -1,5 +1,8 @@
 const { Profile, RecipeFav, RecipeRecent } = require('../models');
-const { signToken, AuthenticationError } = require('../utils/auth');
+const { signToken,  AuthenticationError } = require('../utils/auth');
+
+
+
 
 const resolvers = {
   Query: {
@@ -67,22 +70,26 @@ const resolvers = {
     },
     
     addRecipeRecent: async (parent, { recipeTitle, recipeImageUrl, recipeUrl }, context) => {
-      if (context.profile) {
-        const recipe = await RecipeRecent.create({
-          recipeTitle, 
-          recipeImageUrl, 
-          recipeUrl,
-        });
-
-        await Profile.findOneAndUpdate(
-          { _id: context.profile._id },
-          { $addToSet: { recentRecipe: recipe._id } }
-        );
-
-        return recipe;
+      if (!context.profile) {
+        throw new AuthenticationError('Not authenticated');
       }
-      throw new AuthenticationError('Not authenticated');
+    
+      const recipe = await RecipeRecent.create({
+        recipeTitle,
+        recipeImageUrl,
+        recipeUrl,
+        recipeAuthor: context.profile.username,
+      });
+    
+      await Profile.findOneAndUpdate(
+        { _id: context.profile._id },
+        { $addToSet: { recentRecipe: recipe._id } }
+      );
+    
+      return recipe;
     },
+    
+
     removeRecipeFavorite: async (parent, { recipeId }, context) => {
       if (context.profile) {
         const recipe = await RecipeFav.findOneAndDelete({

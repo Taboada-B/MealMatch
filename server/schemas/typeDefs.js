@@ -1,49 +1,45 @@
-const typeDefs = `
-  type Profile {
-    _id: ID
-    profilename: String
-    email: String
-    password: String
-    favRecipes: [RecipeFav]! 
-    recentRecipes: [RecipeRecent]! 
+const { gql } = require('apollo-server-express');
+
+const typeDefs = gql`
+  type Recipe {
+    _id: ID!
+    recipeText: String!
+    recipeAuthor: String!
+    createdAt: String
   }
 
- type RecipeFav {
-  _id: ID
-  recipeTitle: String
-  recipeImageUrl: String
-  recipeUrl: String
-}
-
-type RecipeRecent {
-  _id: ID
-  recipeTitle: String
-  recipeImageUrl: String
-  recipeUrl: String
-}
+  type Profile {
+    _id: ID!
+    username: String!
+    email: String!
+    recipes: [Recipe]
+    favRecipe: [Recipe]
+    recentRecipe: [Recipe]
+  }
 
   type Auth {
     token: ID!
     profile: Profile
   }
 
-type Query {
+  type Query {
     profiles: [Profile]
-    profile(profilename: String!): Profile
-    recipes(profilename: String): [RecipeFav]  
-    recipe(recipeId: ID!): RecipeFav  
-    me: Profile 
+    profile(username: String!): Profile
+    recipes(username: String): [Recipe]
+    recipe(recipeId: ID!): Recipe
+    recipeFavorites(username: String): [Recipe]
+    recipeRecents(username: String): [Recipe]
+    me: Profile
   }
 
- type Mutation {
-    addProfile (profilename: String!, email: String!, password: String!): Auth
+  type Mutation {
+    addProfile(username: String!, email: String!, password: String!): Auth
     login(email: String!, password: String!): Auth
-    addRecipe (recipeText: String!): RecipeFav  
-    removeRecipe (recipeId: ID!): RecipeFav  
-    
+    addRecipeFavorite(recipeText: String!): Recipe
+    addRecipeRecent(recipeText: String!): Recipe
+    removeRecipeFavorite(recipeId: ID!): Recipe
+    removeRecipeRecent(recipeId: ID!): Recipe
   }
 `;
 
 module.exports = typeDefs;
-
-

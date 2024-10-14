@@ -1,4 +1,4 @@
-const { Profile, Recipe } = require('../models');
+const { Profile, RecipeFav, RecipeRecent } = require('../models');
 const { signToken, AuthenticationError } = require('../utils/auth');
 
 const resolvers = {
@@ -9,76 +9,108 @@ const resolvers = {
     profile: async (parent, { username }) => {
       return Profile.findOne({ username }).populate('recipes');
     },
-    recipes: async (parent, { username }) => {
+    recipeFavorites: async (parent, { username }) => {
       const params = username ? { username } : {};
-      return Recipe.find(params).sort({ createdAt: -1 });
+      return RecipeFav.find(params).sort({ createdAt: -1 });
     },
-    recipe: async (parent, { recipeId }) => {
-      return Recipe.findOne({ _id: recipeId });
+    recipeRecents: async (parent, { username }) => {
+      const params = username ? { username } : {};
+      return RecipeRecent.find(params).sort({ createdAt: -1 });
     },
     me: async (parent, args, context) => {
       if (context.profile) {
         return Profile.findOne({ _id: context.profile._id }).populate('favRecipe recentRecipe');
       }
-      throw AuthenticationError;
+      throw new AuthenticationError('Not authenticated');
     },
   },
 
   Mutation: {
     addProfile: async (parent, { username, email, password }) => {
       const profile = await Profile.create({ username, email, password });
-      const token = signToken(profile); 
+      const token = signToken(profile);
       return { token, profile };
     },
     login: async (parent, { email, password }) => {
       const profile = await Profile.findOne({ email });
 
       if (!profile) {
-        throw AuthenticationError;
+        throw new AuthenticationError('Incorrect credentials');
       }
 
       const correctPw = await profile.isCorrectPassword(password);
 
       if (!correctPw) {
-        throw AuthenticationError;
+        throw new AuthenticationError('Incorrect credentials');
       }
 
       const token = signToken(profile);
 
       return { token, profile };
     },
-    addRecipe: async (parent, { recipeText }, context) => {
+    addRecipeFavorite: async (parent, { recipeText }, context) => {
       if (context.profile) {
-        const recipe = await Recipe.create({
+        const recipe = await RecipeFav.create({
           recipeText,
           recipeAuthor: context.profile.username,
         });
 
         await Profile.findOneAndUpdate(
           { _id: context.profile._id },
-          { $addToSet: { recipes: recipe._id } }
+          { $addToSet: { favRecipe: recipe._id } }
         );
 
         return recipe;
       }
-      throw AuthenticationError;
+      throw new AuthenticationError('Not authenticated');
     },
-
-    removeRecipe: async (parent, { recipeId }, context) => {
+    addRecipeRecent: async (parent, { recipeText }, context) => {
       if (context.profile) {
-        const recipe = await Recipe.findOneAndDelete({
+        const recipe = await RecipeRecent.create({
+          recipeText,
+          recipeAuthor: context.profile.username,
+        });
+
+        await Profile.findOneAndUpdate(
+          { _id: context.profile._id },
+          { $addToSet: { recentRecipe: recipe._id } }
+        );
+
+        return recipe;
+      }
+      throw new AuthenticationError('Not authenticated');
+    },
+    removeRecipeFavorite: async (parent, { recipeId }, context) => {
+      if (context.profile) {
+        const recipe = await RecipeFav.findOneAndDelete({
           _id: recipeId,
           recipeAuthor: context.profile.username,
         });
 
         await Profile.findOneAndUpdate(
           { _id: context.profile._id },
-          { $pull: { recipes: recipe._id } }
+          { $pull: { favRecipe: recipe._id } }
         );
 
         return recipe;
       }
-      throw AuthenticationError;
+      throw new AuthenticationError('Not authenticated');
+    },
+    removeRecipeRecent: async (parent, { recipeId }, context) => {
+      if (context.profile) {
+        const recipe = await RecipeRecent.findOneAndDelete({
+          _id: recipeId,
+          recipeAuthor: context.profile.username,
+        });
+
+        await Profile.findOneAndUpdate(
+          { _id: context.profile._id },
+          { $pull: { recentRecipe: recipe._id } }
+        );
+
+        return recipe;
+      }
+      throw new AuthenticationError('Not authenticated');
     },
   },
 };

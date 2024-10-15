@@ -8,22 +8,19 @@ import ErrorPage from "./pages/ErrorPage";
 import FavoritePage from "./pages/FavoritePage";
 import AuthenticatePage from "./pages/Authenticate.jsx";
 import Signup from "./pages/Signup.jsx";
+import Login from "./pages/Login.jsx";
 
 import "./index.css";
-
-const handleLogin = () => {
-  console.log("User logged in");
-};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App handleLogin={handleLogin} />,
+    element: <App />,
     errorElement: <ErrorPage />,
     children: [
       {
         index: true,
-        element: <AuthenticatePage onLogin={handleLogin} />,
+        element: <Login/>,
       },
       {
         path: "/signup",

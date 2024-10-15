@@ -1,3 +1,4 @@
+// typeDefs.js
 const { gql } = require('graphql-tag');
 
 const typeDefs = gql`
@@ -6,13 +7,13 @@ const typeDefs = gql`
     recipeTitle: String!
     recipeImageUrl: String!
     recipeUrl: String!
+    createdAt: String
   }
 
   type Profile {
     _id: ID!
     username: String!
     email: String!
-    recipes: [Recipe]
     favRecipe: [Recipe]
     recentRecipe: [Recipe]
   }
@@ -25,8 +26,6 @@ const typeDefs = gql`
   type Query {
     profiles: [Profile]
     profile(username: String!): Profile
-    recipes(username: String): [Recipe]
-    recipe(recipeId: ID!): Recipe
     recipeFavorites(username: String): [Recipe]
     recipeRecents(username: String): [Recipe]
     me: Profile

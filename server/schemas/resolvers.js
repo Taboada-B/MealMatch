@@ -7,10 +7,10 @@ const { signToken,  AuthenticationError } = require('../utils/auth');
 const resolvers = {
   Query: {
     profiles: async () => {
-      return Profile.find().populate('recipes');
+      return Profile.find().populate('favRecipe recentRecipe');
     },
     profile: async (parent, { username }) => {
-      return Profile.findOne({ username }).populate('recipes');
+      return Profile.findOne({ username }).populate('favRecipe recentRecipe');
     },
     recipeFavorites: async (parent, { username }) => {
       const params = username ? { username } : {};
@@ -89,7 +89,6 @@ const resolvers = {
       return recipe;
     },
     
-
     removeRecipeFavorite: async (parent, { recipeId }, context) => {
       if (context.profile) {
         const recipe = await RecipeFav.findOneAndDelete({

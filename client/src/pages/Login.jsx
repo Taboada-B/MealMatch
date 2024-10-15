@@ -1,40 +1,79 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useMutation } from '@apollo/client';
+import { LOGIN_PROFILE } from '../utils/mutations';
 
-const Login = ({ onLogin }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+import Auth from '../utils/auth';
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Logging in with:", { email, password });
+const Login = (props) => {
+  const [formState, setFormState] = useState({ email: '', password: '' });
+  const [login, { error, data }] = useMutation(LOGIN_PROFILE);
 
-    onLogin();
+  // update state based on form input changes
+  const handleChange = (event) => {
+    const { name, value } = event.target;
 
-    navigate("/home");
+    setFormState({
+      ...formState,
+      [name]: value,
+    });
+  };
+
+  // submit form
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    console.log(formState);
+    try {
+      const { data } = await login({
+        variables: { ...formState },
+      });
+
+      Auth.login(data.login.token);
+    } catch (e) {
+      console.error(e);
+    }
+
+    // clear form values
+    setFormState({
+      email: '',
+      password: '',
+    });
   };
 
   return (
     <div className="login-container">
       <h2>Log In</h2>
-      <form onSubmit={handleSubmit} className="login-form">
+      {data ? (
+        <p>Success! {' '}
+          <Link to="/home"> Discover Recipes!</Link> 
+        </p>
+      ) : (
+      <form onSubmit={handleFormSubmit} className="login-form">
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+            className="form-input"
+            placeholder="Your email"
+            name="email"
+            type="email"
+            value={formState.email}
+            onChange={handleChange}
         />
         <input
+          className="form-input"
+          placeholder="******"
+          name="password"
           type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          value={formState.password}
+          onChange={handleChange}
         />
         <button type="submit">Login</button>
       </form>
+      )}
+
+      {error && (
+              <div>
+                {error.message}
+              </div>
+            )}
       <p className="signup-link">
         Don’t have an account? <a href="/signup">Sign up!</a>
       </p>
